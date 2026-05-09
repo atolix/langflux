@@ -1,6 +1,6 @@
 import { mix, paletteColorAt } from './color'
 
-export const MARBLE_SIZE = 300
+export const CANVAS_SIZE = 300
 
 type LanguageColorWeight = {
   color: string
@@ -99,7 +99,7 @@ const createRibbonPath = (
     .join(' ')
 }
 
-const createMarbleLines = (
+const createCanvasLines = (
   weightedPalette: ReturnType<typeof createWeightedPalette>,
   seed: number,
 ) => {
@@ -122,7 +122,7 @@ const createMarbleLines = (
   }).join('\n')
 
   const veins = Array.from({ length: 24 }, () => {
-    const y = -80 + random() * (MARBLE_SIZE + 160)
+    const y = -80 + random() * (CANVAS_SIZE + 160)
     const path = createRibbonPath(
       y,
       12 + random() * 25.5,
@@ -148,18 +148,18 @@ const createMarbleLines = (
   return { ribbons, veins }
 }
 
-export const createMarbleSvg = (colors: LanguageColorWeight[], seed: number) => {
+export const createCanvasSvg = (colors: LanguageColorWeight[], seed: number) => {
   const weightedPalette = createWeightedPalette(colors)
   const gradientPalette = createWeightedPalette(shuffleColors(colors, seed + 307))
   const gradientStops = createGradientStops(gradientPalette)
-  const { ribbons, veins } = createMarbleLines(weightedPalette, seed)
+  const { ribbons, veins } = createCanvasLines(weightedPalette, seed)
 
   return `
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="${MARBLE_SIZE}"
-    height="${MARBLE_SIZE}"
-    viewBox="0 0 ${MARBLE_SIZE} ${MARBLE_SIZE}"
+    width="${CANVAS_SIZE}"
+    height="${CANVAS_SIZE}"
+    viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}"
   >
     <defs>
       <linearGradient id="baseGradient" x1="0%" y1="28%" x2="100%" y2="72%">

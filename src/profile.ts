@@ -1,5 +1,5 @@
 import type { LanguageStat } from './github'
-import { createMarbleSvg, MARBLE_SIZE } from './marble'
+import { CANVAS_SIZE, createCanvasSvg } from './canvas'
 import { escapeHtml } from './escape'
 
 const PROFILE_WIDTH = 780
@@ -43,20 +43,20 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
     height="${PROFILE_HEIGHT}"
     viewBox="0 0 ${PROFILE_WIDTH} ${PROFILE_HEIGHT}"
     role="img"
-    aria-label="GitHub language marble"
+    aria-label="GitHub language canvas"
   >
     <defs>
-      <clipPath id="marbleClip">
+      <clipPath id="canvasClip">
         <rect
           x="${PROFILE_PADDING}"
           y="${PROFILE_PADDING}"
-          width="${MARBLE_SIZE}"
-          height="${MARBLE_SIZE}"
+          width="${CANVAS_SIZE}"
+          height="${CANVAS_SIZE}"
           rx="12"
           ry="12"
         />
       </clipPath>
-      <filter id="marbleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <filter id="canvasShadow" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.14" />
       </filter>
       <style>
@@ -76,10 +76,10 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
       </style>
     </defs>
 
-    <g filter="url(#marbleShadow)">
-      <g clip-path="url(#marbleClip)">
+    <g filter="url(#canvasShadow)">
+      <g clip-path="url(#canvasClip)">
         <g transform="translate(${PROFILE_PADDING} ${PROFILE_PADDING})">
-          ${createMarbleSvg(languageStats, seed)}
+          ${createCanvasSvg(languageStats, seed)}
         </g>
       </g>
     </g>
