@@ -34,6 +34,21 @@ const createWeightedPalette = (colors: LanguageColorWeight[]) => {
   })
 }
 
+const shuffleColors = (colors: LanguageColorWeight[], seed: number) => {
+  const random = createRandom(seed)
+  const shuffledColors = [...colors]
+
+  for (let index = shuffledColors.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    const color = shuffledColors[index]
+
+    shuffledColors[index] = shuffledColors[swapIndex]
+    shuffledColors[swapIndex] = color
+  }
+
+  return shuffledColors
+}
+
 const createGradientStops = (palette: ReturnType<typeof createWeightedPalette>) =>
   palette
     .map((color) => {
@@ -135,7 +150,8 @@ const createMarbleLines = (
 
 export const createMarbleSvg = (colors: LanguageColorWeight[], seed: number) => {
   const weightedPalette = createWeightedPalette(colors)
-  const gradientStops = createGradientStops(weightedPalette)
+  const gradientPalette = createWeightedPalette(shuffleColors(colors, seed + 307))
+  const gradientStops = createGradientStops(gradientPalette)
   const { ribbons, veins } = createMarbleLines(weightedPalette, seed)
 
   return `
