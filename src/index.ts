@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
-import { fetchUserLanguageStats, type LanguageStat } from './github'
+import { escapeHtml } from './escape'
+import { getLanguageStats } from './github'
 import { createMarbleSvg, MARBLE_SIZE } from './marble'
+import { createProfileSvg } from './profile'
 
 type Bindings = {
   GITHUB_TOKEN?: string
@@ -8,8 +10,6 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-const OTHER_COLOR = '#8b949e'
-const NO_LANGUAGE_INFO = 'No language info'
 const USERNAME_PATTERN = /^[a-z\d](?:[a-z\d-]{0,38})$/i
 
 const getRandomSeed = () => Math.floor(Math.random() * 1_000_000)
@@ -20,13 +20,6 @@ const getUsername = (usernameQuery: string | undefined) => {
   return username && USERNAME_PATTERN.test(username) ? username : undefined
 }
 
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-
 app.get('/', async (c) => {
   const seed = getRandomSeed()
   const username = getUsername(c.req.query('username'))
@@ -34,11 +27,7 @@ app.get('/', async (c) => {
     return c.text('username query is required', 400)
   }
 
-  const fetchedStats = await fetchUserLanguageStats(username, c.env.GITHUB_TOKEN).catch(() => [])
-  const languageStats =
-    fetchedStats.length > 0
-      ? fetchedStats
-      : [{ name: NO_LANGUAGE_INFO, color: OTHER_COLOR, percentage: 100 }]
+  const languageStats = await getLanguageStats(username, c.env.GITHUB_TOKEN)
   const legendItems = languageStats
     .map(
       (language) => `
@@ -127,12 +116,12 @@ app.get('/', async (c) => {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          color: #f4f7fb;
+          color: #6e7681;
           text-shadow: 0 1px 8px rgb(0 0 0 / 55%);
         }
 
         .value {
-          color: #e3e8ef;
+          color: #6e7681;
           font-variant-numeric: tabular-nums;
           text-align: right;
           text-shadow: 0 1px 8px rgb(0 0 0 / 55%);
@@ -181,6 +170,24 @@ app.get('/', async (c) => {
   `
 
   return c.html(html)
+})
+
+app.get('/profile.svg', async (c) => {
+  const seed = getRandomSeed()
+  const username = getUsername(c.req.query('username'))
+  if (!username) {
+    return c.text('username query is required', 400)
+  }
+
+  const languageStats = await getLanguageStats(username, c.env.GITHUB_TOKEN)
+  const svg = createProfileSvg(languageStats, seed)
+
+  return c.body(svg, {
+    headers: {
+      'content-type': 'image/svg+xml; charset=utf-8',
+      'cache-control': 'no-store',
+    },
+  })
 })
 
 export default app

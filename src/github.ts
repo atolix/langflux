@@ -15,6 +15,7 @@ type GitHubLanguages = Record<string, number>
 
 const PALETTE_SIZE = 6
 const OTHER_COLOR = '#8b949e'
+const NO_LANGUAGE_INFO = 'No language info'
 const GITHUB_API_VERSION = '2022-11-28'
 const MAX_REPO_PAGES = 10
 const REPOS_PER_PAGE = 100
@@ -100,4 +101,15 @@ export const fetchUserLanguageStats = async (
   }, {})
 
   return createLanguageStats(languageTotals)
+}
+
+export const getLanguageStats = async (
+  username: string,
+  token: string | undefined,
+) => {
+  const fetchedStats = await fetchUserLanguageStats(username, token).catch(() => [])
+
+  return fetchedStats.length > 0
+    ? fetchedStats
+    : [{ name: NO_LANGUAGE_INFO, color: OTHER_COLOR, percentage: 100 }]
 }
