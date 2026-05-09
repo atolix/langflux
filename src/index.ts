@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { mix, paletteColorAt } from './color'
 import { fetchUserLanguageStats, type LanguageStat } from './github'
 
 type Bindings = {
@@ -18,41 +19,6 @@ const getUsername = (usernameQuery: string | undefined) => {
   const username = usernameQuery?.trim()
 
   return username && USERNAME_PATTERN.test(username) ? username : undefined
-}
-
-const hexToRgb = (color: string) => {
-  const value = color.slice(1)
-
-  return {
-    r: Number.parseInt(value.slice(0, 2), 16),
-    g: Number.parseInt(value.slice(2, 4), 16),
-    b: Number.parseInt(value.slice(4, 6), 16),
-  }
-}
-
-const rgbToHex = ({ r, g, b }: { r: number; g: number; b: number }) => {
-  const channelToHex = (channel: number) =>
-    Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0')
-
-  return `#${channelToHex(r)}${channelToHex(g)}${channelToHex(b)}`
-}
-
-const mix = (from: string, to: string, amount: number) => {
-  const a = hexToRgb(from)
-  const b = hexToRgb(to)
-
-  return rgbToHex({
-    r: a.r + (b.r - a.r) * amount,
-    g: a.g + (b.g - a.g) * amount,
-    b: a.b + (b.b - a.b) * amount,
-  })
-}
-
-const paletteColorAt = (palette: string[], amount: number) => {
-  const position = Math.max(0, Math.min(0.999, amount)) * (palette.length - 1)
-  const index = Math.floor(position)
-
-  return mix(palette[index], palette[index + 1] ?? palette[index], position - index)
 }
 
 const createRandom = (seed: number) => {
