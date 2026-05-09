@@ -2,6 +2,8 @@
 
 Generate a GitHub language profile SVG from a public user's repositories.
 
+<img width="877" height="465" alt=" 2026-05-10 0 34 55" src="https://github.com/user-attachments/assets/7ed5dcbe-7a9e-4ed6-b72a-e7a6474e41d3" />
+
 ## Usage
 
 ```md
