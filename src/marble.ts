@@ -2,6 +2,11 @@ import { mix, paletteColorAt } from './color'
 
 export const MARBLE_SIZE = 300
 
+type LanguageColorWeight = {
+  color: string
+  percentage: number
+}
+
 const createRandom = (seed: number) => {
   let value = seed
 
@@ -9,6 +14,43 @@ const createRandom = (seed: number) => {
     value = (value * 1664525 + 1013904223) >>> 0
     return value / 4294967296
   }
+}
+
+const createWeightedPalette = (colors: LanguageColorWeight[]) => {
+  const totalPercentage = colors.reduce((sum, color) => sum + color.percentage, 0)
+  let offset = 0
+
+  return colors.map((color) => {
+    const weight = totalPercentage > 0 ? color.percentage / totalPercentage : 1 / colors.length
+    const start = offset
+
+    offset += weight
+
+    return {
+      color: color.color,
+      start,
+      end: offset,
+    }
+  })
+}
+
+const createGradientStops = (palette: ReturnType<typeof createWeightedPalette>) =>
+  palette
+    .map((color) => {
+      const center = Math.max(0, Math.min(100, ((color.start + color.end) / 2) * 100))
+
+      return `<stop offset="${center.toFixed(2)}%" stop-color="${color.color}" />`
+    })
+    .join('\n')
+
+const colorAtWeight = (
+  palette: ReturnType<typeof createWeightedPalette>,
+  amount: number,
+) => {
+  const position = Math.max(0, Math.min(0.999, amount))
+  const color = palette.find((item) => position >= item.start && position < item.end)
+
+  return color?.color ?? palette.at(-1)?.color ?? '#8b949e'
 }
 
 const createRibbonPath = (
@@ -42,8 +84,12 @@ const createRibbonPath = (
     .join(' ')
 }
 
-const createMarbleLines = (palette: string[], seed: number) => {
+const createMarbleLines = (
+  weightedPalette: ReturnType<typeof createWeightedPalette>,
+  seed: number,
+) => {
   const random = createRandom(seed)
+  const palette = weightedPalette.map((color) => color.color)
   const ribbons = Array.from({ length: 24 }, (_, index) => {
     const y = -45 + index * 14.25 + (random() - 0.5) * 10.5
     const path = createRibbonPath(
@@ -52,7 +98,7 @@ const createMarbleLines = (palette: string[], seed: number) => {
       random() * Math.PI * 2,
       (random() - 0.5) * 10.5,
     )
-    const color = mix(paletteColorAt(palette, index / 23), '#ffffff', 0.08)
+    const color = mix(colorAtWeight(weightedPalette, random()), '#ffffff', 0.08)
     const width = 16.5 + random() * 46.5
 
     return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${width.toFixed(
@@ -68,7 +114,11 @@ const createMarbleLines = (palette: string[], seed: number) => {
       random() * Math.PI * 2,
       (random() - 0.5) * 16.5,
     )
-    const paletteColor = paletteColorAt(palette, random())
+    const paletteColor = mix(
+      colorAtWeight(weightedPalette, random()),
+      paletteColorAt(palette, random()),
+      0.24,
+    )
     const veinColor =
       random() > 0.58
         ? mix(paletteColor, '#ffffff', 0.48)
@@ -83,15 +133,10 @@ const createMarbleLines = (palette: string[], seed: number) => {
   return { ribbons, veins }
 }
 
-export const createMarbleSvg = (palette: string[], seed: number) => {
-  const gradientStops = palette
-    .map((color, index) => {
-      const offset = palette.length === 1 ? 0 : (index / (palette.length - 1)) * 100
-
-      return `<stop offset="${offset.toFixed(2)}%" stop-color="${color}" />`
-    })
-    .join('\n')
-  const { ribbons, veins } = createMarbleLines(palette, seed)
+export const createMarbleSvg = (colors: LanguageColorWeight[], seed: number) => {
+  const weightedPalette = createWeightedPalette(colors)
+  const gradientStops = createGradientStops(weightedPalette)
+  const { ribbons, veins } = createMarbleLines(weightedPalette, seed)
 
   return `
   <svg

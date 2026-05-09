@@ -39,7 +39,6 @@ app.get('/', async (c) => {
     fetchedStats.length > 0
       ? fetchedStats
       : [{ name: NO_LANGUAGE_INFO, color: OTHER_COLOR, percentage: 100 }]
-  const palette = languageStats.map((language) => language.color)
   const legendItems = languageStats
     .map(
       (language) => `
@@ -171,7 +170,7 @@ app.get('/', async (c) => {
     <body>
       <main>
         <div class="marble" aria-hidden="true">
-          ${createMarbleSvg(palette, seed)}
+          ${createMarbleSvg(languageStats, seed)}
         </div>
         <ol class="legend">
           ${legendItems}
