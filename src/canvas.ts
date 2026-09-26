@@ -54,7 +54,7 @@ const createGradientStops = (palette: ReturnType<typeof createWeightedPalette>) 
     .map((color) => {
       const center = Math.max(0, Math.min(100, ((color.start + color.end) / 2) * 100))
 
-      return `<stop offset="${center.toFixed(2)}%" stop-color="${color.color}" />`
+      return `<stop offset="${center.toFixed(2)}%" stop-color="${color.color}" stop-opacity="0.42" />`
     })
     .join('\n')
 
@@ -161,6 +161,7 @@ const createCanvasLines = (
 export const createCanvasSvg = (colors: LanguageColorWeight[], seed: number) => {
   const weightedPalette = createWeightedPalette(colors)
   const gradientPalette = createWeightedPalette(shuffleColors(colors, seed + 307))
+  const baseColor = mix(colorAtWeight(weightedPalette, 0.5), '#24323a', 0.2)
   const gradientStops = createGradientStops(gradientPalette)
   const { ribbons, veins } = createCanvasLines(weightedPalette, seed)
 
@@ -239,6 +240,7 @@ export const createCanvasSvg = (colors: LanguageColorWeight[], seed: number) => 
       </filter>
     </defs>
 
+    <rect width="100%" height="100%" fill="${baseColor}" />
     <rect
       width="100%"
       height="100%"
