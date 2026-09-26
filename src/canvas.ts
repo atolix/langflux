@@ -73,12 +73,18 @@ const createRibbonPath = (
   amplitude: number,
   phase: number,
   drift: number,
+  seed: number,
 ) => {
-  const points = Array.from({ length: 9 }, (_, index) => {
-    const x = -45 + index * 48.75
+  const random = createRandom(seed)
+  let organicDrift = (random() - 0.5) * amplitude * 0.45
+
+  const points = Array.from({ length: 12 }, (_, index) => {
+    const x = -60 + index * 38.2
+    organicDrift += (random() - 0.5) * amplitude * 0.34
     const wave =
-      Math.sin(index * 0.95 + phase) * amplitude +
-      Math.sin(index * 1.85 + phase * 0.72) * amplitude * 0.36
+      Math.sin(index * 0.72 + phase) * amplitude * 0.72 +
+      Math.sin(index * 1.63 + phase * 0.72) * amplitude * 0.28 +
+      organicDrift
 
     return { x, y: y + wave + index * drift }
   })
@@ -105,29 +111,33 @@ const createCanvasLines = (
 ) => {
   const random = createRandom(seed)
   const palette = weightedPalette.map((color) => color.color)
-  const ribbons = Array.from({ length: 24 }, (_, index) => {
-    const y = -45 + index * 14.25 + (random() - 0.5) * 10.5
+  let ribbonY = -70
+  const ribbons = Array.from({ length: 21 }, () => {
+    ribbonY += 12 + random() * 15
+    const y = ribbonY + (random() - 0.5) * 15
     const path = createRibbonPath(
       y,
-      19.5 + random() * 31.5,
+      24 + random() * 39,
       random() * Math.PI * 2,
-      (random() - 0.5) * 10.5,
+      (random() - 0.5) * 18,
+      Math.floor(random() * 1_000_000),
     )
     const color = mix(colorAtWeight(weightedPalette, random()), '#ffffff', 0.08)
-    const width = 16.5 + random() * 46.5
+    const width = 14 + random() * 54
 
     return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${width.toFixed(
       1,
-    )}" stroke-linecap="round" opacity="${(0.12 + random() * 0.18).toFixed(2)}" />`
+    )}" stroke-linecap="round" opacity="${(0.16 + random() * 0.22).toFixed(2)}" />`
   }).join('\n')
 
-  const veins = Array.from({ length: 24 }, () => {
+  const veins = Array.from({ length: 38 }, () => {
     const y = -80 + random() * (CANVAS_SIZE + 160)
     const path = createRibbonPath(
       y,
-      12 + random() * 25.5,
+      10 + random() * 30,
       random() * Math.PI * 2,
-      (random() - 0.5) * 16.5,
+      (random() - 0.5) * 28,
+      Math.floor(random() * 1_000_000),
     )
     const paletteColor = mix(
       colorAtWeight(weightedPalette, random()),
@@ -138,7 +148,7 @@ const createCanvasLines = (
       random() > 0.58
         ? mix(paletteColor, '#ffffff', 0.48)
         : mix(paletteColor, '#24323a', 0.22)
-    const width = random() > 0.9 ? 1.5 + random() * 2.1 : 0.35 + random() * 1
+    const width = random() > 0.84 ? 1.5 + random() * 2.4 : 0.35 + random() * 1.2
 
     return `<path d="${path}" fill="none" stroke="${veinColor}" stroke-width="${width.toFixed(
       1,
