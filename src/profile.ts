@@ -8,7 +8,7 @@ const PROFILE_PADDING = 30
 const LEGEND_X = 390
 const LEGEND_VALUE_X = 735
 const LEGEND_START_Y = 95
-const LEGEND_ROW_HEIGHT = 44
+const LEGEND_ROW_HEIGHT = 38
 
 export const createProfileSvg = (languageStats: LanguageStat[], seed: number) => {
   const legendItems = languageStats

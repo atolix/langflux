@@ -13,7 +13,7 @@ type GitHubRepo = {
 
 type GitHubLanguages = Record<string, number>
 
-const PALETTE_SIZE = 6
+const PALETTE_SIZE = 7
 const OTHER_COLOR = '#8b949e'
 const NO_LANGUAGE_INFO = 'No language info'
 const GITHUB_API_VERSION = '2022-11-28'
