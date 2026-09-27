@@ -1,4 +1,4 @@
-import type { LanguageStat } from './github'
+import { LANGUAGE_LIMIT, type LanguageStat } from './github'
 import { CANVAS_SIZE, createCanvasSvg } from './canvas'
 import { escapeHtml } from './escape'
 
@@ -7,8 +7,9 @@ const PROFILE_HEIGHT = 360
 const PROFILE_PADDING = 30
 const LEGEND_X = 390
 const LEGEND_VALUE_X = 735
-const LEGEND_START_Y = 95
-const LEGEND_ROW_HEIGHT = 38
+const LEGEND_MARKER_RADIUS = 10
+const LEGEND_ROW_HEIGHT = CANVAS_SIZE / LANGUAGE_LIMIT
+const LEGEND_START_Y = PROFILE_PADDING + LEGEND_ROW_HEIGHT / 2
 
 export const createProfileSvg = (languageStats: LanguageStat[], seed: number) => {
   const legendItems = languageStats
@@ -20,7 +21,7 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
           <circle
             cx="${LEGEND_X}"
             cy="${y}"
-            r="10"
+            r="${LEGEND_MARKER_RADIUS}"
             fill="${language.color}"
             stroke="#ffffff"
             stroke-opacity="0.22"

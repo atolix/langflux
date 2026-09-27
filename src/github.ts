@@ -13,7 +13,7 @@ type GitHubRepo = {
 
 type GitHubLanguages = Record<string, number>
 
-const PALETTE_SIZE = 7
+export const LANGUAGE_LIMIT = 7
 const OTHER_COLOR = '#8b949e'
 const NO_LANGUAGE_INFO = 'No language info'
 const GITHUB_API_VERSION = '2022-11-28'
@@ -81,7 +81,7 @@ const createLanguageStats = (languages: GitHubLanguages): LanguageStat[] => {
       percentage: (bytes / totalBytes) * 100,
     }))
     .sort((a, b) => b.percentage - a.percentage)
-    .slice(0, PALETTE_SIZE)
+    .slice(0, LANGUAGE_LIMIT)
 }
 
 export const fetchUserLanguageStats = async (
