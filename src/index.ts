@@ -26,7 +26,7 @@ app.get('/profile.svg', async (c) => {
   }
 
   const languageStats = await getLanguageStats(username, c.env.GITHUB_TOKEN)
-  const svg = createProfileSvg(languageStats, seed)
+  const svg = createProfileSvg(languageStats, seed, c.req.query('full') !== undefined)
 
   return c.body(svg, {
     headers: {

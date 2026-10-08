@@ -4,14 +4,23 @@ import { escapeHtml } from './escape'
 
 const PROFILE_WIDTH = 780
 const PROFILE_HEIGHT = 360
+const PROFILE_FULL_WIDTH = 1012
 const PROFILE_PADDING = 30
-const LEGEND_X = 390
-const LEGEND_VALUE_X = 735
+const LEGEND_WIDTH = 360
+const LEGEND_GAP = 60
 const LEGEND_MARKER_RADIUS = 10
 const LEGEND_ROW_HEIGHT = CANVAS_SIZE / LANGUAGE_LIMIT
 const LEGEND_START_Y = PROFILE_PADDING + LEGEND_ROW_HEIGHT / 2
 
-export const createProfileSvg = (languageStats: LanguageStat[], seed: number) => {
+export const createProfileSvg = (
+  languageStats: LanguageStat[],
+  seed: number,
+  full = false,
+) => {
+  const profileWidth = full ? PROFILE_FULL_WIDTH : PROFILE_WIDTH
+  const canvasWidth = profileWidth - PROFILE_PADDING * 2 - LEGEND_WIDTH - LEGEND_GAP
+  const legendX = PROFILE_PADDING + canvasWidth + LEGEND_GAP
+  const legendValueX = profileWidth - PROFILE_PADDING
   const legendItems = languageStats
     .map((language, index) => {
       const y = LEGEND_START_Y + index * LEGEND_ROW_HEIGHT
@@ -19,7 +28,7 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
       return `
         <g>
           <circle
-            cx="${LEGEND_X}"
+            cx="${legendX}"
             cy="${y}"
             r="${LEGEND_MARKER_RADIUS}"
             fill="${language.color}"
@@ -27,10 +36,10 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
             stroke-opacity="0.22"
             stroke-width="1"
           />
-          <text x="${LEGEND_X + 28}" y="${y + 7}" class="legend-name">
+          <text x="${legendX + 28}" y="${y + 7}" class="legend-name">
             ${escapeHtml(language.name)}
           </text>
-          <text x="${LEGEND_VALUE_X}" y="${y + 7}" text-anchor="end" class="legend-value">
+          <text x="${legendValueX}" y="${y + 7}" text-anchor="end" class="legend-value">
             ${language.percentage.toFixed(1)}%
           </text>
         </g>`
@@ -40,9 +49,9 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
   return `
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="${PROFILE_WIDTH}"
+    width="${profileWidth}"
     height="${PROFILE_HEIGHT}"
-    viewBox="0 0 ${PROFILE_WIDTH} ${PROFILE_HEIGHT}"
+    viewBox="0 0 ${profileWidth} ${PROFILE_HEIGHT}"
     role="img"
     aria-label="GitHub language canvas"
   >
@@ -51,7 +60,7 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
         <rect
           x="${PROFILE_PADDING}"
           y="${PROFILE_PADDING}"
-          width="${CANVAS_SIZE}"
+          width="${canvasWidth}"
           height="${CANVAS_SIZE}"
           rx="12"
           ry="12"
@@ -80,7 +89,7 @@ export const createProfileSvg = (languageStats: LanguageStat[], seed: number) =>
     <g filter="url(#canvasShadow)">
       <g clip-path="url(#canvasClip)">
         <g transform="translate(${PROFILE_PADDING} ${PROFILE_PADDING})">
-          ${createCanvasSvg(languageStats, seed)}
+          ${createCanvasSvg(languageStats, seed, canvasWidth, CANVAS_SIZE)}
         </g>
       </g>
     </g>

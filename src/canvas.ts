@@ -74,12 +74,13 @@ const createRibbonPath = (
   phase: number,
   drift: number,
   seed: number,
+  width: number,
 ) => {
   const random = createRandom(seed)
   let organicDrift = (random() - 0.5) * amplitude * 0.45
 
   const points = Array.from({ length: 12 }, (_, index) => {
-    const x = -60 + index * 38.2
+    const x = width * -0.2 + index * ((width * 1.4) / 11)
     organicDrift += (random() - 0.5) * amplitude * 0.34
     const wave =
       Math.sin(index * 0.72 + phase) * amplitude * 0.72 +
@@ -108,6 +109,8 @@ const createRibbonPath = (
 const createCanvasLines = (
   weightedPalette: ReturnType<typeof createWeightedPalette>,
   seed: number,
+  width: number,
+  height: number,
 ) => {
   const random = createRandom(seed)
   const palette = weightedPalette.map((color) => color.color)
@@ -121,23 +124,25 @@ const createCanvasLines = (
       random() * Math.PI * 2,
       (random() - 0.5) * 18,
       Math.floor(random() * 1_000_000),
+      width,
     )
     const color = mix(colorAtWeight(weightedPalette, random()), '#ffffff', 0.08)
-    const width = 14 + random() * 54
+    const strokeWidth = 14 + random() * 54
 
-    return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${width.toFixed(
+    return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(
       1,
     )}" stroke-linecap="round" opacity="${(0.16 + random() * 0.22).toFixed(2)}" />`
   }).join('\n')
 
   const veins = Array.from({ length: 38 }, () => {
-    const y = -80 + random() * (CANVAS_SIZE + 160)
+    const y = -80 + random() * (height + 160)
     const path = createRibbonPath(
       y,
       10 + random() * 30,
       random() * Math.PI * 2,
       (random() - 0.5) * 28,
       Math.floor(random() * 1_000_000),
+      width,
     )
     const paletteColor = mix(
       colorAtWeight(weightedPalette, random()),
@@ -148,9 +153,9 @@ const createCanvasLines = (
       random() > 0.58
         ? mix(paletteColor, '#ffffff', 0.48)
         : mix(paletteColor, '#24323a', 0.22)
-    const width = random() > 0.84 ? 1.5 + random() * 2.4 : 0.35 + random() * 1.2
+    const strokeWidth = random() > 0.84 ? 1.5 + random() * 2.4 : 0.35 + random() * 1.2
 
-    return `<path d="${path}" fill="none" stroke="${veinColor}" stroke-width="${width.toFixed(
+    return `<path d="${path}" fill="none" stroke="${veinColor}" stroke-width="${strokeWidth.toFixed(
       1,
     )}" stroke-linecap="round" opacity="${(0.1 + random() * 0.17).toFixed(2)}" />`
   }).join('\n')
@@ -158,19 +163,24 @@ const createCanvasLines = (
   return { ribbons, veins }
 }
 
-export const createCanvasSvg = (colors: LanguageColorWeight[], seed: number) => {
+export const createCanvasSvg = (
+  colors: LanguageColorWeight[],
+  seed: number,
+  width = CANVAS_SIZE,
+  height = CANVAS_SIZE,
+) => {
   const weightedPalette = createWeightedPalette(colors)
   const gradientPalette = createWeightedPalette(shuffleColors(colors, seed + 307))
   const baseColor = mix(colorAtWeight(weightedPalette, 0.5), '#24323a', 0.2)
   const gradientStops = createGradientStops(gradientPalette)
-  const { ribbons, veins } = createCanvasLines(weightedPalette, seed)
+  const { ribbons, veins } = createCanvasLines(weightedPalette, seed, width, height)
 
   return `
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="${CANVAS_SIZE}"
-    height="${CANVAS_SIZE}"
-    viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}"
+    width="${width}"
+    height="${height}"
+    viewBox="0 0 ${width} ${height}"
   >
     <defs>
       <linearGradient id="baseGradient" x1="0%" y1="28%" x2="100%" y2="72%">

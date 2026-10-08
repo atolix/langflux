@@ -13,6 +13,12 @@ Generate a GitHub language profile SVG from a public user's repositories.
 
 Replace `<username>` with the GitHub username you want to render.
 
+To use the full GitHub profile README width, add the `full` query parameter:
+
+```md
+![Language canvas](https://your-worker.example.com/profile.svg?username=<username>&full)
+```
+
 ## Local Development
 
 Create `.dev.vars`:
