@@ -49,8 +49,8 @@ export const createProfileSvg = (
   return `
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="${profileWidth}"
-    height="${PROFILE_HEIGHT}"
+    width="${full ? '100%' : profileWidth}"
+    height="${full ? 'auto' : PROFILE_HEIGHT}"
     viewBox="0 0 ${profileWidth} ${PROFILE_HEIGHT}"
     role="img"
     aria-label="GitHub language canvas"
